@@ -18,8 +18,13 @@ const pgClient = new Pool({
   password: keys.pgPassword,
   port: keys.pgPort
 });
-pgClient.on('error', () => console.log('Lost PG connection'));
 
+// Catch Errors
+pgClient.on('error', (err) => {
+  console.error('Postgres error:\n', err.stack)
+});
+
+// Create the table if needed
 pgClient
   .query('CREATE TABLE IF NOT EXISTS values (number INT)')
   .catch(err => console.log(err));
@@ -39,25 +44,33 @@ app.get('/', (req, res) => {
   res.send('Hi');
 });
 
+// Send back all previously tried values
 app.get('/values/all', async (req, res) => {
   const values = await pgClient.query('SELECT * from values');
 
   res.send(values.rows);
 });
 
+// Send back all values and results
 app.get('/values/current', async (req, res) => {
   redisClient.hgetall('values', (err, values) => {
     res.send(values);
   });
 });
 
+// Submit a new value for calculation
 app.post('/values', async (req, res) => {
   const index = req.body.index;
 
-  if (parseInt(index) > 40) {
+  if(index == "") {
+    return res.status(400).send('Missing index value!');
+  }
+  // arbitrary to keep computation time reasonable
+  if (parseInt(index) > 50) {
     return res.status(422).send('Index too high');
   }
 
+  console.log("api-server: (insert) index: ", index);
   redisClient.hset('values', index, 'Nothing yet!');
   redisPublisher.publish('insert', index);
   pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
