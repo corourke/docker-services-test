@@ -1,0 +1,36 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "frontend",
+      "image": "corourke/dst-frontend",
+      "hostname": "frontend",
+      "essential": false
+    },
+    {
+      "name": "api-server",
+      "image": "corourke/dst-api",
+      "hostname": "api-server",
+      "essential": false
+    },
+    {
+      "name": "worker",
+      "image": "corourke/dst-worker",
+      "hostname": "worker",
+      "essential": false
+    },
+    {
+      "name": "nginx",
+      "image": "corourke/dst-nginx",
+      "hostname": "nginx",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [api-server, frontend]
+    }
+  ]
+}
