@@ -1,0 +1,24 @@
+sudo: required
+services:
+  - docker
+env:
+  - CI:true
+
+before_install:
+  - docker build -t corourke/docker-services-test -f ./frontend/Dockerfile.dev ./frontend
+
+script:
+  - docker run corourke/docker-services-test npm test -- --coverage
+
+after_success:
+  - docker build -t corourke/dst-frontend ./frontend
+  - docker build -t corourke/dst-api ./api-server
+  - docker build -t corourke/dst-nginx ./nginx
+  - docker build -t corourke/dst-worker ./worker
+  # Log in to docker cli
+  - docker login -u "$USERNAME" -p "$PASSWORD"
+  # Push images to docker hub
+  - docker push corourke/dst-frontend
+  - docker push corourke/dst-api
+  - docker push corourke/dst-nginx
+  - docker push corourke/dst-worker
