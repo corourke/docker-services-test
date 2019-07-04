@@ -34,7 +34,8 @@
           "containerPort": 80
         }
       ],
-      "links": [api-server, frontend]
+      "links": [api-server, frontend],
+      "memory": 128
     }
   ]
 }
