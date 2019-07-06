@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import OtherPage from './OtherPage';
+import App from './App';
 
-it('does not have any tests yet', () => {
-});
+it('renders without crashing', () => {});
